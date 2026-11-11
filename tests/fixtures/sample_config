@@ -1,0 +1,37 @@
+Host *
+  ServerAliveInterval 30
+  StrictHostKeyChecking accept-new
+
+### PRODUCTION
+# главный веб-сервер
+Host web-01.prod
+  HostName 203.0.113.10
+  User deploy
+  Port 22
+  IdentityFile ~/.ssh/id_ed25519
+
+# Host old.prod
+#   HostName 203.0.113.99
+
+  Host db-01.prod
+    HostName 10.0.1.20
+    User postgres
+    ProxyJump bastion.prod
+    LocalForward 15432 127.0.0.1:5432
+
+Host bastion.prod
+  HostName 198.51.100.5
+  User ops
+  IdentitiesOnly true
+
+
+Host 10.0.1.* 10.0.2.*
+  User ops
+  ProxyJump bastion.prod
+
+Match host *.internal exec "true"
+  ForwardAgent no
+
+Host legacy
+  HostName=192.0.2.7
+  HostKeyAlgorithms +ssh-rsa

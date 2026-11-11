@@ -1,0 +1,43 @@
+# Hostkeep demo — fictional hosts, documentation IP ranges (RFC 5737).
+# Hosts of the other files are pulled in by Include, exactly like ssh does it.
+Include conf.d/*.conf
+
+### PRODUCTION
+Host bastion.prod
+  # @group: Production
+  # @desc: entry point
+  HostName 198.51.100.10
+  User ops
+  Port 2222
+  IdentityFile ~/.ssh/id_ed25519_prod
+  IdentitiesOnly yes
+
+Host web-01.prod web-02.prod
+  # @group: Production
+  HostName 10.10.1.11
+  User deploy
+  ProxyJump bastion.prod
+
+Host db-01.prod
+  # @group: Production
+  # @desc: PostgreSQL 16 primary
+  HostName 10.10.2.21
+  User postgres
+  ProxyJump bastion.prod
+  ServerAliveInterval 30
+
+Host k8s-master.prod
+  # @group: Production
+  HostName 10.10.3.5
+  User admin
+  ProxyJump bastion.prod
+
+# everything in the private network goes through the bastion
+Host 10.10.*
+  ProxyJump bastion.prod
+  User ops
+
+Host *
+  AddKeysToAgent yes
+  ServerAliveInterval 60
+  ServerAliveCountMax 3

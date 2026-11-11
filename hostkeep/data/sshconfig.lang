@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- OpenSSH client configuration (ssh_config) for GtkSourceView 4. Part of Hostkeep. -->
+<language id="sshconfig" name="SSH Config" version="2.0" _section="Other">
+  <metadata>
+    <property name="globs">ssh_config;*.ssh.conf</property>
+    <property name="line-comment-start">#</property>
+  </metadata>
+
+  <styles>
+    <style id="comment"  name="Comment"           map-to="def:comment"/>
+    <style id="meta"     name="Hostkeep metadata" map-to="def:doc-comment-element"/>
+    <style id="section"  name="Host / Match"      map-to="def:keyword"/>
+    <style id="pattern"  name="Host pattern"      map-to="def:function"/>
+    <style id="include"  name="Include"           map-to="def:preprocessor"/>
+    <style id="option"   name="Option"            map-to="def:type"/>
+    <style id="boolean"  name="Boolean"           map-to="def:boolean"/>
+    <style id="number"   name="Number"            map-to="def:decimal"/>
+    <style id="token"    name="Token"             map-to="def:special-char"/>
+    <style id="string"   name="String"            map-to="def:string"/>
+  </styles>
+
+  <definitions>
+    <context id="meta" style-ref="meta">
+      <match>^\s*#\s*@[A-Za-z_]+\s*:.*$</match>
+    </context>
+
+    <context id="comment" style-ref="comment" end-at-line-end="true" class="comment" class-disabled="no-spell-check">
+      <start>#</start>
+    </context>
+
+    <context id="section-line">
+      <match>(?i)^\s*(Host|Match)\b[ \t=]*(.*)$</match>
+      <include>
+        <context sub-pattern="1" style-ref="section"/>
+        <context sub-pattern="2" style-ref="pattern"/>
+      </include>
+    </context>
+
+    <context id="include-line">
+      <match>(?i)^\s*(Include)\b[ \t=]*(.*)$</match>
+      <include>
+        <context sub-pattern="1" style-ref="include"/>
+        <context sub-pattern="2" style-ref="string"/>
+      </include>
+    </context>
+
+    <context id="option" style-ref="option">
+      <match>^\s*[A-Za-z][A-Za-z0-9]*(?=[ \t=])</match>
+    </context>
+
+    <context id="string" style-ref="string" end-at-line-end="true">
+      <start>"</start>
+      <end>"</end>
+    </context>
+
+    <context id="boolean" style-ref="boolean">
+      <match>(?i)(?&lt;=[ \t=])(yes|no|true|false|ask|auto|autoask|confirm|accept-new|off|none|force|inet6?|any)\b</match>
+    </context>
+
+    <context id="number" style-ref="number">
+      <match>(?&lt;![\w.:-])\d+[smhdwSMHDW]?(?![\w.:])</match>
+    </context>
+
+    <context id="token" style-ref="token">
+      <match>%[%CdhijkLlnprTu]|\$\{[A-Za-z_][A-Za-z0-9_]*\}</match>
+    </context>
+
+    <context id="sshconfig" class="no-spell-check">
+      <include>
+        <context ref="meta"/>
+        <context ref="comment"/>
+        <context ref="section-line"/>
+        <context ref="include-line"/>
+        <context ref="option"/>
+        <context ref="string"/>
+        <context ref="boolean"/>
+        <context ref="number"/>
+        <context ref="token"/>
+      </include>
+    </context>
+  </definitions>
+</language>
